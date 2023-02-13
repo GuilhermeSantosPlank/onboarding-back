@@ -22,7 +22,7 @@ module.exports.handler = async (event, context) => {
 			}
 		}
 
-		const { tag, value, type} = event;
+		const { tag, value, type} = body;
 
 		const newItem = {
 			  id: crypto.randomUUID(),

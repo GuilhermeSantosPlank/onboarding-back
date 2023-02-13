@@ -44,6 +44,52 @@ data "archive_file" "create-archive" {
   type        = "zip"
 }
 
+# Lambdas
+data "archive_file" "create-archive_get_all" {
+  source_file = "lambdas/get_all.js"
+  output_path = "lambdas/get_all.zip"
+  type        = "zip"
+}
+
+resource "aws_lambda_function" "get_all" {
+  environment {
+    variables = {
+      ONBOARDING_TABLE = aws_dynamodb_table.onboarding_table.name
+    }
+  }
+  memory_size   = "128"
+  timeout       = 10
+  runtime       = "nodejs14.x"
+  architectures = ["arm64"]
+  handler       = "lambdas/get_all.handler"
+  function_name = "get_all"
+  role          = aws_iam_role.iam_for_lambda.arn
+  filename      = "lambdas/get_all.zip"
+}
+
+# Lambdas
+data "archive_file" "create-archive_delete" {
+  source_file = "lambdas/delete.js"
+  output_path = "lambdas/delete_v2.zip"
+  type        = "zip"
+}
+
+resource "aws_lambda_function" "delete" {
+  environment {
+    variables = {
+      ONBOARDING_TABLE = aws_dynamodb_table.onboarding_table.name
+    }
+  }
+  memory_size   = "128"
+  timeout       = 10
+  runtime       = "nodejs14.x"
+  architectures = ["arm64"]
+  handler       = "lambdas/delete.handler"
+  function_name = "delete"
+  role          = aws_iam_role.iam_for_lambda.arn
+  filename      = "lambdas/delete.zip"
+}
+
 resource "aws_lambda_function" "create" {
   environment {
     variables = {
@@ -64,5 +110,19 @@ resource "aws_lambda_permission" "api_create" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.create.arn
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "arn:aws:execute-api:us-east-1:376671595923:*/*"
+  source_arn    = "arn:aws:execute-api:us-east-1:235335160924:*/*"
+}
+
+resource "aws_lambda_permission" "api_get_all" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_all.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:us-east-1:235335160924:*/*"
+}
+
+resource "aws_lambda_permission" "api_delete" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.delete.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:us-east-1:235335160924:*/*"
 }
