@@ -1,10 +1,10 @@
-const AWS = require("aws-sdk"); 
-const ONBOARDING_TABLE = process.env.ONBOARDING_TABLE; 
+const AWS = require("aws-sdk");
+const ONBOARDING_TABLE = process.env.ONBOARDING_TABLE;
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 
 module.exports.handler = async (event, context) => {
-	try{
+	try {
 		if (!event.pathParameters && !event.pathParameters.id) {
 			return {
 				statusCode: 400,
@@ -13,22 +13,21 @@ module.exports.handler = async (event, context) => {
 		}
 
 		var id = event.pathParameters.id;
-		
+
 		var params = {
-			TableName : ONBOARDING_TABLE,
+			TableName: ONBOARDING_TABLE,
 			Key: {
-			  HashKey: {id: id},
-			  NumberRangeKey: 1
+				"id": id
 			}
 		};
 
 		await documentClient
-		  .delete(params)
-		  .promise();
+			.delete(params)
+			.promise();
 		return {
 			statusCode: 204
 		};
-	} catch(err){
+	} catch (err) {
 		return {
 			statusCode: 500,
 			body: JSON.stringify(err)

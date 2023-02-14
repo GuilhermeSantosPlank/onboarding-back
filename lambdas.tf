@@ -70,7 +70,7 @@ resource "aws_lambda_function" "get_all" {
 # Lambdas
 data "archive_file" "create-archive_delete" {
   source_file = "lambdas/delete.js"
-  output_path = "lambdas/delete_v2.zip"
+  output_path = "lambdas/delete.zip"
   type        = "zip"
 }
 
